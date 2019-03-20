@@ -9,9 +9,23 @@ class Reconciler:
         self.input_path = input_path
         self.item_count = 0
         self.lookup_path = lookup_path
-        self.lookup = { r[0]:r[1] for r in Knead(self.lookup_path).data() }
+        self.lookup = self._create_lookup()
         self.match_count = 0
         self.output_path = output_path
+
+    def _create_lookup(self):
+        lookup = {}
+
+        for row in Knead(self.lookup_path).data():
+            label = row[0]
+            qid = row[1]
+
+            if label in lookup:
+                lookup[label].append(qid)
+            else:
+                lookup[label] = [qid]
+
+        return lookup
 
     def _lookup(self, inp):
         self.item_count += 1
@@ -19,6 +33,7 @@ class Reconciler:
         logging.debug(f"Trying to match '{inp}'")
 
         row = {
+            "hits" : 0,
             "input" : inp,
             "match_method" : None,
             "qid" : None
@@ -31,6 +46,8 @@ class Reconciler:
 
         if row["qid"]:
             self.match_count += 1
+        else:
+            logging.debug(f"No hits for {inp}")
 
         return row
 
@@ -54,10 +71,13 @@ class Reconciler:
         scores.sort(key = lambda r:r["ratio"], reverse = True)
         first = scores[0]
 
-        row["qid"] = first["qid"]
-        row["match_method"] = "fuzzy"
-        row["qlabel"] = first["name"]
-        row["qratio"] = first["ratio"]
+        row.update({
+            "qid" : ",".join(first["qid"]),
+            "hits" : len(first["qid"]),
+            "match_method" : "fuzzy",
+            "qlabel" : first["name"],
+            "qratio" : first["ratio"]
+        })
 
         logging.debug(
             f'Matched {name} to {row["qlabel"]} ({row["qid"]}) by fuzzy'
@@ -69,7 +89,13 @@ class Reconciler:
         name = row["input"]
 
         if name in self.lookup:
-            row["qid"] = self.lookup[name]
+            qid = self.lookup[name]
+            row["hits"] = len(qid)
+
+            if len(qid) > 1:
+                logging.warning(f"Warning: There are {len(qid)} results for '{name}'")
+
+            row["qid"] = ",".join(qid)
             row["match_method"] = "lookup"
             logging.debug(f'Matched "{name}" to {row["qid"]} by name')
 
