@@ -7,14 +7,34 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_parser():
-    parser = ArgumentParser(description = "Tool for Wikidata data usage")
+    parser = ArgumentParser(description = "Tool to match strings to Wikidata items")
+
     parser.add_argument("command", choices = COMMANDS, nargs = "?")
-    parser.add_argument("--has-header", action = "store_true")
-    parser.add_argument("-i", "--input", type = str, required = True)
-    parser.add_argument("-k", "--key", type = str)
-    parser.add_argument("-o", "--output", type = str)
-    parser.add_argument("-dp", "--data-path", type = str, default = DATA_DIRECTORY)
-    parser.add_argument("-v", "--verbose", action = "store_true")
+
+    parser.add_argument("--has-header", action = "store_true",
+        help = "CSV file has a header"
+    )
+
+    parser.add_argument("-i", "--input", type = str, required = True,
+        help = "Input CSV file"
+    )
+
+    parser.add_argument("-k", "--key", type = str,
+        help = "If a CSV file has multiple columns, give the key of the column"
+    )
+
+    parser.add_argument("-o", "--output", type = str,
+        help = "Output CSV file"
+    )
+
+    parser.add_argument("-dp", "--data-path", type = str, default = DATA_DIRECTORY,
+        help = f"Path where the JSON Wikidata files will be saved, defaults to {DATA_DIRECTORY}"
+    )
+
+    parser.add_argument("-v", "--verbose", action = "store_true",
+        help = "Display debug information"
+    )
+
     return parser
 
 def main(args):
