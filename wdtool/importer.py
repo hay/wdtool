@@ -14,11 +14,17 @@ MAX_QIDS_PER_API_CALL = 50
 WD_API_ENDPOINT = "https://www.wikidata.org/w/api.php"
 
 class Importer:
-    def __init__(self, path, data_path, key = None, has_header = False):
+    def __init__(
+        self, path, data_path, lookup_path,
+        key = None, has_header = False
+    ):
         logger.debug(f"Importing {path} to {data_path}")
         self.data_path = data_path
         self.key = key
+        self.label_count = 0
+        self.lookup_path = lookup_path
         self.path = path
+        self.qid_count = 0
         self.qids = Knead(path, has_header = has_header).map(self._cleanup).data()
         logger.debug(f"Found {len(self.qids)} ids")
 
@@ -40,14 +46,15 @@ class Importer:
             item = Knead(path).data()
             qid = item["id"]
             labels = self._get_all_labels(item)
+            self.qid_count += 1
 
             for label in labels:
                 lookup.append([label, qid])
 
-        logging.debug(f"Found {len(lookup)} labels")
-        lookup_path = Path(f"{self.data_path}/qid-lookup.csv")
-        logging.debug(f"Writing lookup table to {lookup_path}")
-        Knead(lookup).write(lookup_path)
+        self.label_count = len(lookup)
+        logging.debug(f"Found {self.label_count} labels")
+        logging.debug(f"Writing lookup table to {self.lookup_path}")
+        Knead(lookup).write(self.lookup_path)
 
     def _get_all_labels(self, item):
         labels = set()

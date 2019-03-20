@@ -7,7 +7,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 COMMANDS = ("import", "reconcile")
-DATA_DIRECTORY = Path(__file__).parent.joinpath("data")
+DATA_DIRECTORY = str(Path(__file__).parent.joinpath("data"))
+LOOKUP_PATH = str(Path(f"{DATA_DIRECTORY}/qid-lookup.csv"))
 
 def get_parser():
     parser = ArgumentParser(description = "Tool for Wikidata data usage")
@@ -29,11 +30,24 @@ def main(args):
             args.input,
             args.data_path,
             key = args.key,
-            has_header = args.has_header
+            has_header = args.has_header,
+            lookup_path = LOOKUP_PATH
         )
+
         importer.run()
+
+        print(f"Found {importer.qid_count} items with {importer.label_count} labels")
     elif args.command == "reconcile":
-        reconciler = Reconciler(args.input, args.output)
+        reconciler = Reconciler(
+            args.input, args.output, lookup_path = LOOKUP_PATH
+        )
+
+        reconciler.run()
+
+        matches = reconciler.match_count
+        items = reconciler.item_count
+        perc = round((matches / items) * 100, 2)
+        print(f"{matches} matches found for {items} items ({perc}%)")
     else:
         raise Exception("No command given")
 
