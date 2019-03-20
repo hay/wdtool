@@ -1,11 +1,15 @@
 from .util import mkdir_if_not_exists
 from dataknead import Knead
+from glob import glob
 from pathlib import Path
 import json
 import logging
 import requests
 
 logger = logging.getLogger(__name__)
+
+# This should be user-defined
+ALLOWED_LANGUAGES = ("en", "nl", "de", "fr", "es", "it")
 MAX_QIDS_PER_API_CALL = 50
 WD_API_ENDPOINT = "https://www.wikidata.org/w/api.php"
 
@@ -25,6 +29,39 @@ class Importer:
             val = row
 
         return val.replace("http://www.wikidata.org/entity/", "")
+
+    def _create_lookup_table(self):
+        lookup = []
+        json_path = str(Path(f"{self.data_path}/*.json"))
+        logging.debug(f"Getting all data files from {json_path}")
+
+        for path in glob(json_path):
+            logging.debug(f"Parsing {path}")
+            item = Knead(path).data()
+            qid = item["id"]
+            labels = self._get_all_labels(item)
+
+            for label in labels:
+                lookup.append([label, qid])
+
+        logging.debug(f"Found {len(lookup)} labels")
+        lookup_path = Path(f"{self.data_path}/qid-lookup.csv")
+        logging.debug(f"Writing lookup table to {lookup_path}")
+        Knead(lookup).write(lookup_path)
+
+    def _get_all_labels(self, item):
+        labels = set()
+
+        for lang, val in item["labels"].items():
+            if lang in ALLOWED_LANGUAGES:
+                labels.add(val["value"])
+
+        for lang, vals in item["aliases"].items():
+            if lang in ALLOWED_LANGUAGES:
+                for val in vals:
+                    labels.add(val["value"])
+
+        return list(sorted(labels))
 
     def _get_qid_data_path(self, qid):
         return Path(f"{self.data_path}/{qid}.json")
@@ -75,3 +112,4 @@ class Importer:
     def run(self):
         mkdir_if_not_exists(self.data_path)
         self._import()
+        self._create_lookup_table()
