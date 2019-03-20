@@ -1,9 +1,8 @@
+from .constants import FIELDNAMES, FUZZ_RATIO
 from dataknead import Knead
 from fuzzywuzzy import fuzz
 import logging
 logger = logging.getLogger(__name__)
-
-FUZZ_RATIO = 80
 
 class Reconciler:
     def __init__(self, input_path, output_path, lookup_path):
@@ -78,4 +77,4 @@ class Reconciler:
 
     def run(self):
         items = Knead(self.input_path).map(self._lookup).data()
-        Knead(items).write(self.output_path)
+        Knead(items).write(self.output_path, fieldnames = FIELDNAMES)

@@ -1,3 +1,4 @@
+from .constants import ALLOWED_LANGUAGES, MAX_QIDS_PER_API_CALL, WD_API_ENDPOINT
 from .util import mkdir_if_not_exists
 from dataknead import Knead
 from glob import glob
@@ -7,11 +8,6 @@ import logging
 import requests
 
 logger = logging.getLogger(__name__)
-
-# This should be user-defined
-ALLOWED_LANGUAGES = ("en", "nl", "de", "fr", "es", "it")
-MAX_QIDS_PER_API_CALL = 50
-WD_API_ENDPOINT = "https://www.wikidata.org/w/api.php"
 
 class Importer:
     def __init__(

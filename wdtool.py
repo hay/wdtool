@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
-from pathlib import Path
+from wdtool.constants import COMMANDS, DATA_DIRECTORY, LOOKUP_PATH
 from wdtool.importer import Importer
 from wdtool.reconciler import Reconciler
 import logging
 logger = logging.getLogger(__name__)
-
-COMMANDS = ("import", "reconcile")
-DATA_DIRECTORY = str(Path(__file__).parent.joinpath("data"))
-LOOKUP_PATH = str(Path(f"{DATA_DIRECTORY}/qid-lookup.csv"))
 
 def get_parser():
     parser = ArgumentParser(description = "Tool for Wikidata data usage")
