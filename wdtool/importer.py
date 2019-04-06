@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Importer:
     def __init__(
         self, path, data_path, lookup_path,
-        key = None, has_header = False
+        key = None
     ):
         logger.debug(f"Importing {path} to {data_path}")
         self.data_path = data_path
@@ -21,7 +21,7 @@ class Importer:
         self.lookup_path = lookup_path
         self.path = path
         self.qid_count = 0
-        self.qids = Knead(path, has_header = has_header).map(self._cleanup).data()
+        self.qids = Knead(path, has_header = self.key is not None).map(self._cleanup).data()
         logger.debug(f"Found {len(self.qids)} ids")
 
     def _cleanup(self, row):

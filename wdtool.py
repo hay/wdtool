@@ -17,16 +17,12 @@ def get_parser():
 
     parser.add_argument("command", choices = COMMANDS, nargs = "?")
 
-    parser.add_argument("--has-header", action = "store_true",
-        help = "CSV file has a header"
-    )
-
     parser.add_argument("-i", "--input", type = str, required = True,
         help = "Input CSV file"
     )
 
     parser.add_argument("-k", "--key", type = str,
-        help = "If a CSV file has multiple columns, give the key of the column"
+        help = "If a CSV file has multiple columns and a header, give the key of the column"
     )
 
     parser.add_argument("-o", "--output", type = str,
@@ -52,7 +48,6 @@ def main(args):
             args.input,
             args.data_path,
             key = args.key,
-            has_header = args.has_header,
             lookup_path = LOOKUP_PATH
         )
 
