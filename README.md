@@ -8,13 +8,17 @@ To match strings, first get a CSV file with QID's that you want to match (e.g., 
 
 If your CSV file has multiple columns and a header, you need to give it the key of the column where your qids are located as well
 
-    wdtool.py import -i query.csv -k item --has-header
+    wdtool.py import -i query.csv -k item
 
 This will download all item data and write it to a JSON file, by default in a directory called `data` in the same folder as where you execute `wdtool.py`.
 
 To match your CSV file of strings try
 
     wdtool.py reconcile -i strings.csv -o strings-matched.csv
+
+If you have a CSV file with a header and multiple columns you can use the `-k` argument again
+
+    wdtool.py reconcile -i items.csv -k item -o strings-matched.csv
 
 `strings-matched.csv` will contain the effort wdtool has made.
 

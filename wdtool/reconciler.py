@@ -1,17 +1,19 @@
 from .constants import FIELDNAMES, FUZZ_RATIO
+from .util import UserException
 from dataknead import Knead
 from fuzzywuzzy import fuzz
 import logging
 logger = logging.getLogger(__name__)
 
 class Reconciler:
-    def __init__(self, input_path, output_path, lookup_path):
+    def __init__(self, input_path, output_path, lookup_path, key = None):
         self.input_path = input_path
         self.item_count = 0
         self.lookup_path = lookup_path
         self.lookup = self._create_lookup()
         self.match_count = 0
         self.output_path = output_path
+        self.key = key
 
     def _create_lookup(self):
         lookup = {}
@@ -29,7 +31,14 @@ class Reconciler:
 
     def _lookup(self, inp):
         self.item_count += 1
-        inp = inp[0]
+
+        if self.key and self.key not in inp:
+            raise UserException(f"key '{self.key}' does not exist in the data")
+        elif self.key:
+            inp = inp[self.key]
+        else:
+            inp = inp[0]
+
         logging.debug(f"Trying to match '{inp}'")
 
         row = {
@@ -102,5 +111,5 @@ class Reconciler:
         return row
 
     def run(self):
-        items = Knead(self.input_path).map(self._lookup).data()
+        items = Knead(self.input_path, has_header = self.key is not None).map(self._lookup).data()
         Knead(items).write(self.output_path, fieldnames = FIELDNAMES)

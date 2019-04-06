@@ -4,13 +4,14 @@ from pathlib import Path
 from wdtool.constants import COMMANDS
 from wdtool.importer import Importer
 from wdtool.reconciler import Reconciler
+from wdtool.util import UserException
 import logging
 import os
 logger = logging.getLogger(__name__)
 
 CWD = Path(os.getcwd())
-DATA_DIRECTORY = (CWD / "data").resolve()
-LOOKUP_PATH = (CWD / "data/qid-lookup.csv").resolve()
+DATA_DIRECTORY = str((CWD / "data").resolve())
+LOOKUP_PATH = str((CWD / "data/qid-lookup.csv").resolve())
 
 def get_parser():
     parser = ArgumentParser(description = "Tool to match strings to Wikidata items")
@@ -56,7 +57,8 @@ def main(args):
         print(f"Found {importer.qid_count} items with {importer.label_count} labels")
     elif args.command == "reconcile":
         reconciler = Reconciler(
-            args.input, args.output, v_path = LOOKUP_PATH
+            args.input, args.output, lookup_path = LOOKUP_PATH,
+            key = args.key
         )
 
         reconciler.run()
@@ -73,4 +75,8 @@ def main(args):
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
-    main(args)
+
+    try:
+        main(args)
+    except UserException as e:
+        print(f"Error: {e}")
