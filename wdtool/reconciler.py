@@ -106,6 +106,7 @@ class Reconciler:
 
             row["qid"] = ",".join(qid)
             row["match_method"] = "lookup"
+            row["qlabel"] = name
             logging.debug(f'Matched "{name}" to {row["qid"]} by name')
 
         return row

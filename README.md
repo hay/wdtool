@@ -1,4 +1,6 @@
 # wdtool.py
+***This tool has been deprecated. Please use [`wdreconcile`](https://github.com/hay/wdreconcile) instead.***
+
 > Command line utility to match strings to Wikidata items, written in Python 3
 
 ## Examples

@@ -73,6 +73,10 @@ def main(args):
     logging.debug(args)
 
 if __name__ == "__main__":
+    print()
+    print("*** This tool is deprecated. Please use wdreconcile instead ***")
+    print()
+
     parser = get_parser()
     args = parser.parse_args()
 
